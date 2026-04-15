@@ -1,7 +1,7 @@
 "use client";
 
 import { Expense } from "@/types";
-import { CATEGORY_BG } from "@/lib/constants";
+import { CATEGORY_BG, formatCurrency } from "@/lib/constants";
 import { format } from "date-fns";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -9,14 +9,6 @@ import { ArrowRight } from "lucide-react";
 interface RecentExpensesProps {
   expenses: Expense[];
   loading: boolean;
-}
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(value);
 }
 
 export default function RecentExpenses({ expenses, loading }: RecentExpensesProps) {

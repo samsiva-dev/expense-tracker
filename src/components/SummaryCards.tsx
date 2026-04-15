@@ -2,18 +2,11 @@
 
 import { SummaryData } from "@/types";
 import { TrendingUp, TrendingDown, Wallet, Tag, BarChart2 } from "lucide-react";
+import { formatCurrency } from "@/lib/constants";
 
 interface SummaryCardsProps {
   data: SummaryData | null;
   loading: boolean;
-}
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(value);
 }
 
 export default function SummaryCards({ data, loading }: SummaryCardsProps) {

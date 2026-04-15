@@ -11,19 +11,11 @@ import {
   Cell,
 } from "recharts";
 import { CategoryBreakdown } from "@/types";
+import { formatCurrency } from "@/lib/constants";
 
 interface CategoryChartProps {
   data: CategoryBreakdown[];
   loading: boolean;
-}
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
 }
 
 export default function CategoryChart({ data, loading }: CategoryChartProps) {

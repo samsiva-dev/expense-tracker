@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Expense } from "@/types";
-import { CATEGORIES, CATEGORY_BG } from "@/lib/constants";
+import { CATEGORIES, CATEGORY_BG, formatCurrency } from "@/lib/constants";
 import { format } from "date-fns";
 import { Pencil, Trash2, Search, SlidersHorizontal, Plus } from "lucide-react";
 import ExpenseForm from "./ExpenseForm";
@@ -12,14 +12,6 @@ interface ExpenseListProps {
   expenses: Expense[];
   loading: boolean;
   onRefresh: () => void;
-}
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(value);
 }
 
 export default function ExpenseList({ expenses, loading, onRefresh }: ExpenseListProps) {

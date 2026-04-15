@@ -10,19 +10,11 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { MonthlyTrend } from "@/types";
+import { formatCurrency } from "@/lib/constants";
 
 interface MonthlyChartProps {
   data: MonthlyTrend[];
   loading: boolean;
-}
-
-function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value);
 }
 
 export default function MonthlyChart({ data, loading }: MonthlyChartProps) {
