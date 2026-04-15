@@ -135,10 +135,10 @@ export default function ExpenseForm({ initial, onSuccess, onClose }: ExpenseForm
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Amount (USD) <span className="text-red-400">*</span>
+                Amount (INR) <span className="text-red-400">*</span>
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₹</span>
                 <input
                   name="amount"
                   type="number"
