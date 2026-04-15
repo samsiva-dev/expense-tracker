@@ -4,7 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { DollarSign, LayoutDashboard, List, LogOut } from "lucide-react";
+import { IndianRupee, LayoutDashboard, List, LogOut } from "lucide-react";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -22,7 +22,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/dashboard" className="flex items-center gap-2 group">
             <div className="flex items-center justify-center w-8 h-8 bg-indigo-600 rounded-lg group-hover:bg-indigo-700 transition-colors">
-              <DollarSign className="w-5 h-5 text-white" />
+              <IndianRupee className="w-5 h-5 text-white" />
             </div>
             <span className="font-bold text-gray-900 text-lg hidden sm:block">
               Expense<span className="text-indigo-600">Tracker</span>
