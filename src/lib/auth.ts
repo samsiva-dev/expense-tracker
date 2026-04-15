@@ -7,6 +7,9 @@ const allowedUsername = process.env.ALLOWED_GITHUB_USERNAME;
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: "jwt",
+  },
   providers: [
     GithubProvider({
       clientId: process.env.GITHUB_ID!,
@@ -20,11 +23,11 @@ export const authOptions: NextAuthOptions = {
       const githubProfile = profile as { login?: string };
       return githubProfile?.login?.toLowerCase() === allowedUsername.toLowerCase();
     },
-    session: ({ session, user }) => ({
+    session: ({ session, token }) => ({
       ...session,
       user: {
         ...session.user,
-        id: user.id,
+        id: token.sub,
       },
     }),
   },
