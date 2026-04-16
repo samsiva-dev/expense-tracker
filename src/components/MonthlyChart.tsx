@@ -60,7 +60,7 @@ export default function MonthlyChart({ data, loading }: MonthlyChartProps) {
             tick={{ fontSize: 11, fill: "#94a3b8" }}
             tickLine={false}
             axisLine={false}
-            tickFormatter={(v: number) => `$${v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v}`}
+            tickFormatter={(v: number) => `₹${v >= 1000 ? `${(v / 1000).toFixed(1)}k` : v}`}
           />
           <Tooltip
             formatter={(value: number) => [formatCurrency(value), "Total Spent"]}
