@@ -46,6 +46,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   expenses      Expense[]
+  loans         Loan[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -72,4 +73,21 @@ model Expense {
 
   @@index([userId])
   @@index([date])
+}
+
+model Loan {
+  id           String    @id @default(cuid())
+  lenderName   String
+  amount       Float
+  borrowedDate DateTime
+  dueDate      DateTime?
+  status       String    @default("PENDING")
+  notes        String?
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
 }

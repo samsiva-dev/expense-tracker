@@ -38,3 +38,24 @@ export interface SummaryData {
   categoryBreakdown: CategoryBreakdown[];
   monthlyTrend: MonthlyTrend[];
 }
+
+export interface Loan {
+  id: string;
+  lenderName: string;
+  amount: number;
+  borrowedDate: string;
+  dueDate?: string | null;
+  status: "PENDING" | "PAID";
+  notes?: string | null;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LoanFormData {
+  lenderName: string;
+  amount: number;
+  borrowedDate: string;
+  dueDate?: string;
+  notes?: string;
+}

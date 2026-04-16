@@ -7,13 +7,17 @@ import SummaryCards from "@/components/SummaryCards";
 import CategoryChart from "@/components/CategoryChart";
 import MonthlyChart from "@/components/MonthlyChart";
 import RecentExpenses from "@/components/RecentExpenses";
-import { SummaryData, Expense } from "@/types";
+import { SummaryData, Expense, Loan } from "@/types";
 import { format } from "date-fns";
+import { formatCurrency } from "@/lib/constants";
+import Link from "next/link";
+import { Landmark } from "lucide-react";
 
 export default function DashboardPage() {
   const { data: session } = useSession();
   const [summary, setSummary] = useState<SummaryData | null>(null);
   const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [loans, setLoans] = useState<Loan[]>([]);
   const [loadingSummary, setLoadingSummary] = useState(true);
   const [loadingExpenses, setLoadingExpenses] = useState(true);
 
@@ -43,10 +47,18 @@ export default function DashboardPage() {
     }
   }, []);
 
+  const fetchLoans = useCallback(async () => {
+    try {
+      const res = await fetch("/api/loans");
+      if (res.ok) setLoans(await res.json());
+    } catch { /* non-critical */ }
+  }, []);
+
   useEffect(() => {
     fetchSummary();
     fetchExpenses();
-  }, [fetchSummary, fetchExpenses]);
+    fetchLoans();
+  }, [fetchSummary, fetchExpenses, fetchLoans]);
 
   const greeting = () => {
     const hour = new Date().getHours();
@@ -71,6 +83,24 @@ export default function DashboardPage() {
 
         {/* Summary Cards */}
         <SummaryCards data={summary} loading={loadingSummary} />
+
+        {/* Loans banner */}
+        {(() => {
+          const pending = loans.filter((l) => l.status === "PENDING");
+          if (pending.length === 0) return null;
+          const total = pending.reduce((s, l) => s + l.amount, 0);
+          return (
+            <Link href="/loans" className="mt-4 flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 hover:bg-amber-100 transition-colors">
+              <Landmark className="w-5 h-5 text-amber-600 flex-shrink-0" />
+              <div className="flex-1 text-sm">
+                <span className="font-semibold text-amber-800">You have {pending.length} pending loan{pending.length > 1 ? "s" : ""}</span>
+                <span className="text-amber-700"> totalling </span>
+                <span className="font-semibold text-rose-600">{formatCurrency(total, 2)}</span>
+              </div>
+              <span className="text-xs text-amber-600 font-medium">View →</span>
+            </Link>
+          );
+        })()}
 
         {/* Charts */}
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">

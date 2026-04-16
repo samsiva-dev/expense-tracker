@@ -4,7 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { IndianRupee, LayoutDashboard, List, LogOut } from "lucide-react";
+import { IndianRupee, LayoutDashboard, List, LogOut, Landmark } from "lucide-react";
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -13,6 +13,7 @@ export default function Navbar() {
   const navLinks = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/expenses", label: "Expenses", icon: List },
+    { href: "/loans", label: "Loans", icon: Landmark },
   ];
 
   return (
