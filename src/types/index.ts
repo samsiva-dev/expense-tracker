@@ -59,3 +59,31 @@ export interface LoanFormData {
   dueDate?: string;
   notes?: string;
 }
+
+export type BillingCycle = "WEEKLY" | "MONTHLY" | "QUARTERLY" | "YEARLY";
+
+export interface Subscription {
+  id: string;
+  name: string;
+  amount: number;
+  billingCycle: BillingCycle;
+  nextDueDate: string;
+  category: string;
+  description?: string | null;
+  isActive: boolean;
+  trackInExpenses: boolean;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SubscriptionFormData {
+  name: string;
+  amount: number;
+  billingCycle: BillingCycle;
+  nextDueDate: string;
+  category: string;
+  description?: string;
+  isActive: boolean;
+  trackInExpenses: boolean;
+}
