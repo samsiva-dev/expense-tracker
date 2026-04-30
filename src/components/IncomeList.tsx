@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Income, IncomeSummary } from "@/types";
 import { formatCurrency, INCOME_TYPE_LABELS, INCOME_TYPE_BG } from "@/lib/constants";
 import { format } from "date-fns";
-import { Plus, Pencil, Trash2, TrendingUp, ArrowUpRight, Home } from "lucide-react";
+import { Plus, Pencil, Trash2, TrendingUp, ArrowUpRight, Home, CreditCard } from "lucide-react";
 import IncomeForm from "./IncomeForm";
 
 interface Props {
@@ -55,31 +55,62 @@ export default function IncomeList({ incomes, summary, loading, earnCurrency, on
 
       {/* Monthly Summary Banner */}
       {summary && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 flex items-center gap-3">
-            <ArrowUpRight className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-            <div>
-              <p className="text-xs text-emerald-600 font-medium">Earned This Month</p>
-              <p className="text-lg font-bold text-emerald-700">{formatCurrency(summary.totalIncomeInr)}</p>
-              <p className="text-xs text-emerald-500">INR equivalent</p>
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-3 flex items-center gap-3">
+              <ArrowUpRight className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+              <div>
+                <p className="text-xs text-emerald-600 font-medium">Earned This Month</p>
+                <p className="text-lg font-bold text-emerald-700">{formatCurrency(summary.totalIncomeInr)}</p>
+                <p className="text-xs text-emerald-500">INR equivalent</p>
+              </div>
+            </div>
+            <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 flex items-center gap-3">
+              <Home className="w-5 h-5 text-amber-600 flex-shrink-0" />
+              <div>
+                <p className="text-xs text-amber-600 font-medium">Sent Home</p>
+                <p className="text-lg font-bold text-amber-700">{formatCurrency(summary.totalRemittance)}</p>
+                <p className="text-xs text-amber-500">Remittance</p>
+              </div>
+            </div>
+            <div className={`border rounded-xl px-4 py-3 flex items-center gap-3 ${summary.netKept >= 0 ? "bg-indigo-50 border-indigo-100" : "bg-red-50 border-red-100"}`}>
+              <TrendingUp className={`w-5 h-5 flex-shrink-0 ${summary.netKept >= 0 ? "text-indigo-600" : "text-red-600"}`} />
+              <div>
+                <p className={`text-xs font-medium ${summary.netKept >= 0 ? "text-indigo-600" : "text-red-600"}`}>Net Kept</p>
+                <p className={`text-lg font-bold ${summary.netKept >= 0 ? "text-indigo-700" : "text-red-700"}`}>
+                  {summary.netKept < 0 ? "-" : ""}{formatCurrency(Math.abs(summary.netKept))}
+                </p>
+                <p className={`text-xs ${summary.netKept >= 0 ? "text-indigo-500" : "text-red-400"}`}>After all deductions</p>
+              </div>
             </div>
           </div>
-          <div className="bg-amber-50 border border-amber-100 rounded-xl px-4 py-3 flex items-center gap-3">
-            <Home className="w-5 h-5 text-amber-600 flex-shrink-0" />
-            <div>
-              <p className="text-xs text-amber-600 font-medium">Sent Home</p>
-              <p className="text-lg font-bold text-amber-700">{formatCurrency(summary.totalRemittance)}</p>
-              <p className="text-xs text-amber-500">Remittance</p>
-            </div>
-          </div>
-          <div className={`border rounded-xl px-4 py-3 flex items-center gap-3 ${summary.netKept >= 0 ? "bg-indigo-50 border-indigo-100" : "bg-red-50 border-red-100"}`}>
-            <TrendingUp className={`w-5 h-5 flex-shrink-0 ${summary.netKept >= 0 ? "text-indigo-600" : "text-red-600"}`} />
-            <div>
-              <p className={`text-xs font-medium ${summary.netKept >= 0 ? "text-indigo-600" : "text-red-600"}`}>Net Kept</p>
-              <p className={`text-lg font-bold ${summary.netKept >= 0 ? "text-indigo-700" : "text-red-700"}`}>
-                {summary.netKept < 0 ? "-" : ""}{formatCurrency(Math.abs(summary.netKept))}
-              </p>
-              <p className={`text-xs ${summary.netKept >= 0 ? "text-indigo-500" : "text-red-400"}`}>After expenses</p>
+
+          {/* Deduction breakdown */}
+          <div className="bg-gray-50 border border-gray-100 rounded-xl px-4 py-3 text-sm">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Deductions this month</p>
+            <div className="space-y-1.5">
+              <div className="flex justify-between items-center text-gray-600">
+                <span className="flex items-center gap-1.5"><Home className="w-3.5 h-3.5 text-amber-500" /> Remittance sent home</span>
+                <span className="font-medium text-rose-500">− {formatCurrency(summary.totalRemittance)}</span>
+              </div>
+              {summary.totalMonthlyEmi > 0 && (
+                <div className="flex justify-between items-center text-gray-600">
+                  <span className="flex items-center gap-1.5"><CreditCard className="w-3.5 h-3.5 text-blue-500" /> Active EMI payments</span>
+                  <span className="font-medium text-rose-500">− {formatCurrency(summary.totalMonthlyEmi)}</span>
+                </div>
+              )}
+              <div className="flex justify-between items-center text-gray-600">
+                <span>Other expenses</span>
+                <span className="font-medium text-rose-500">
+                  − {formatCurrency(summary.totalIncomeInr - summary.totalRemittance - summary.totalMonthlyEmi - summary.netKept)}
+                </span>
+              </div>
+              <div className="border-t border-gray-200 pt-1.5 flex justify-between items-center font-semibold text-gray-800">
+                <span>Net Kept</span>
+                <span className={summary.netKept >= 0 ? "text-indigo-700" : "text-red-600"}>
+                  {summary.netKept < 0 ? "-" : ""}{formatCurrency(Math.abs(summary.netKept))}
+                </span>
+              </div>
             </div>
           </div>
         </div>
