@@ -16,6 +16,7 @@ import {
   CreditCard,
 } from "lucide-react";
 import SubscriptionForm from "./SubscriptionForm";
+import ActualUsageModal from "./ActualUsageModal";
 
 interface SubscriptionListProps {
   subscriptions: Subscription[];
@@ -37,6 +38,7 @@ export default function SubscriptionList({ subscriptions, loading, onRefresh }: 
   const [markingPaidId, setMarkingPaidId] = useState<string | null>(null);
   const [notifLoading, setNotifLoading] = useState(false);
   const [notifMsg, setNotifMsg] = useState<string | null>(null);
+  const [pendingPaidSub, setPendingPaidSub] = useState<Subscription | null>(null);
 
   const active = subscriptions.filter((s) => s.isActive);
   const inactive = subscriptions.filter((s) => !s.isActive);
@@ -56,6 +58,14 @@ export default function SubscriptionList({ subscriptions, loading, onRefresh }: 
   }
 
   async function handleMarkPaid(sub: Subscription) {
+    if (sub.minimumCharge && sub.minimumCharge > 0) {
+      setPendingPaidSub(sub);
+      return;
+    }
+    await doMarkPaid(sub, null);
+  }
+
+  async function doMarkPaid(sub: Subscription, actualUsage: number | null) {
     setMarkingPaidId(sub.id);
     await fetch(`/api/subscriptions/${sub.id}`, {
       method: "PUT",
@@ -69,7 +79,9 @@ export default function SubscriptionList({ subscriptions, loading, onRefresh }: 
         description: sub.description ?? undefined,
         isActive: sub.isActive,
         trackInExpenses: sub.trackInExpenses,
+        minimumCharge: sub.minimumCharge,
         markPaid: true,
+        actualUsage,
       }),
     });
     setMarkingPaidId(null);
@@ -208,6 +220,17 @@ export default function SubscriptionList({ subscriptions, loading, onRefresh }: 
           initial={editSub}
           onSuccess={() => { setEditSub(null); onRefresh(); }}
           onCancel={() => setEditSub(null)}
+        />
+      )}
+      {pendingPaidSub && (
+        <ActualUsageModal
+          sub={pendingPaidSub}
+          onConfirm={(actualUsage) => {
+            const sub = pendingPaidSub;
+            setPendingPaidSub(null);
+            doMarkPaid(sub, actualUsage);
+          }}
+          onCancel={() => setPendingPaidSub(null)}
         />
       )}
     </div>
