@@ -48,6 +48,11 @@ model User {
   expenses      Expense[]
   loans         Loan[]
   subscriptions Subscription[]
+  notifications Notification[]
+  incomes       Income[]
+  settings      UserSettings?
+  budgets       Budget[]
+  emis          Emi[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 }
@@ -103,6 +108,7 @@ model Subscription {
   description     String?
   isActive        Boolean  @default(true)
   trackInExpenses Boolean  @default(true)
+  minimumCharge   Float?
   userId          String
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt       DateTime @default(now())
@@ -110,4 +116,87 @@ model Subscription {
 
   @@index([userId])
   @@index([nextDueDate])
+}
+
+model Budget {
+  id        String   @id @default(cuid())
+  category  String
+  amount    Float
+  month     Int
+  year      Int
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, category, month, year])
+  @@index([userId])
+}
+
+model Notification {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  title       String
+  message     String
+  isRead      Boolean  @default(false)
+  relatedId   String?
+  relatedType String?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, isRead])
+}
+
+model Income {
+  id               String   @id @default(cuid())
+  amount           Float
+  currency         String   @default("INR")
+  amountInr        Float
+  exchangeRate     Float    @default(1)
+  type             String   @default("SALARY")
+  date             DateTime
+  description      String?
+  remittanceAmount Float?
+  remittanceNote   String?
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([userId])
+  @@index([date])
+}
+
+model UserSettings {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  baseCurrency String   @default("INR")
+  earnCurrency String   @default("INR")
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Emi {
+  id           String   @id @default(cuid())
+  loanName     String
+  lenderName   String
+  loanType     String   @default("PERSONAL")
+  principal    Float
+  interestRate Float
+  tenureMonths Int
+  startDate    DateTime
+  emiAmount    Float
+  paidMonths   Int      @default(0)
+  status       String   @default("ACTIVE")
+  notes        String?
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
 }

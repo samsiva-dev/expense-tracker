@@ -1,19 +1,23 @@
 "use client";
 
-import { SummaryData } from "@/types";
-import { TrendingUp, TrendingDown, Wallet, Tag, BarChart2 } from "lucide-react";
+import { SummaryData, IncomeSummary } from "@/types";
+import { TrendingUp, TrendingDown, Wallet, Tag, BarChart2, PiggyBank } from "lucide-react";
 import { formatCurrency } from "@/lib/constants";
 
 interface SummaryCardsProps {
   data: SummaryData | null;
   loading: boolean;
+  incomeSummary?: IncomeSummary | null;
 }
 
-export default function SummaryCards({ data, loading }: SummaryCardsProps) {
+export default function SummaryCards({ data, loading, incomeSummary }: SummaryCardsProps) {
+  const hasIncome = incomeSummary !== null && incomeSummary !== undefined;
+  const colCount = hasIncome ? 4 : 3;
+
   if (loading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[1, 2, 3].map((i) => (
+      <div className={`grid grid-cols-1 sm:grid-cols-${colCount} gap-4`}>
+        {Array.from({ length: colCount }).map((_, i) => (
           <div key={i} className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 animate-pulse">
             <div className="h-4 bg-gray-200 rounded w-1/2 mb-4" />
             <div className="h-8 bg-gray-200 rounded w-3/4 mb-2" />
@@ -28,6 +32,9 @@ export default function SummaryCards({ data, loading }: SummaryCardsProps) {
   const isUp = change > 0;
   const isDown = change < 0;
 
+  const netKept = incomeSummary?.netKept ?? 0;
+  const netKeptPositive = netKept >= 0;
+
   const cards = [
     {
       title: "This Month",
@@ -39,11 +46,7 @@ export default function SummaryCards({ data, loading }: SummaryCardsProps) {
         change === 0 ? (
           <span className="text-gray-400 text-xs">No previous month data</span>
         ) : (
-          <span
-            className={`flex items-center gap-1 text-xs font-medium ${
-              isUp ? "text-red-500" : "text-emerald-500"
-            }`}
-          >
+          <span className={`flex items-center gap-1 text-xs font-medium ${isUp ? "text-red-500" : "text-emerald-500"}`}>
             {isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
             {Math.abs(change).toFixed(1)}% vs last month
           </span>
@@ -71,10 +74,30 @@ export default function SummaryCards({ data, loading }: SummaryCardsProps) {
         </span>
       ),
     },
+    ...(hasIncome
+      ? [
+          {
+            title: "Net Kept This Month",
+            value: formatCurrency(Math.abs(netKept)),
+            icon: PiggyBank,
+            iconBg: netKeptPositive ? "bg-emerald-50" : "bg-red-50",
+            iconColor: netKeptPositive ? "text-emerald-600" : "text-red-600",
+            sub: (
+              <span className={`text-xs ${netKeptPositive ? "text-emerald-600" : "text-red-500"}`}>
+                {netKeptPositive ? "Surplus" : "Deficit"} · Sent ₹{formatCurrency(incomeSummary!.totalRemittance)} home
+              </span>
+            ),
+          },
+        ]
+      : []),
   ];
 
+  const gridClass = hasIncome
+    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+    : "grid grid-cols-1 sm:grid-cols-3 gap-4";
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div className={gridClass}>
       {cards.map(({ title, value, icon: Icon, iconBg, iconColor, sub }) => (
         <div key={title} className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 flex items-start gap-4">
           <div className={`flex-shrink-0 w-11 h-11 rounded-xl ${iconBg} flex items-center justify-center`}>

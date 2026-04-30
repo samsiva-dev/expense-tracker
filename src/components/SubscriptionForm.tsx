@@ -28,6 +28,7 @@ const defaultForm: SubscriptionFormData = {
   description: "",
   isActive: true,
   trackInExpenses: true,
+  minimumCharge: undefined,
 };
 
 export default function SubscriptionForm({ initial, onSuccess, onCancel }: SubscriptionFormProps) {
@@ -43,6 +44,7 @@ export default function SubscriptionForm({ initial, onSuccess, onCancel }: Subsc
           description: initial.description ?? "",
           isActive: initial.isActive,
           trackInExpenses: initial.trackInExpenses,
+          minimumCharge: initial.minimumCharge ?? undefined,
         }
       : defaultForm
   );
@@ -63,8 +65,8 @@ export default function SubscriptionForm({ initial, onSuccess, onCancel }: Subsc
     const { name, value, type } = e.target;
     if (type === "checkbox") {
       setForm((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
-    } else if (name === "amount") {
-      setForm((prev) => ({ ...prev, amount: parseFloat(value) || 0 }));
+    } else if (name === "amount" || name === "minimumCharge") {
+      setForm((prev) => ({ ...prev, [name]: parseFloat(value) || 0 }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -94,6 +96,7 @@ export default function SubscriptionForm({ initial, onSuccess, onCancel }: Subsc
           description: form.description || undefined,
           isActive: form.isActive,
           trackInExpenses: form.trackInExpenses,
+          minimumCharge: form.minimumCharge && form.minimumCharge > 0 ? form.minimumCharge : null,
         }),
       });
 
@@ -165,6 +168,27 @@ export default function SubscriptionForm({ initial, onSuccess, onCancel }: Subsc
                 className="w-full border border-gray-200 rounded-lg pl-7 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
+          </div>
+
+          {/* Minimum Charge */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Minimum Charge (INR) <span className="text-gray-400 font-normal">(optional)</span>
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₹</span>
+              <input
+                name="minimumCharge"
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.minimumCharge || ""}
+                onChange={handleChange}
+                placeholder="0.00"
+                className="w-full border border-gray-200 rounded-lg pl-7 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+            <p className="text-xs text-gray-400 mt-1">For utility bills — you&apos;ll be charged at least this amount regardless of usage</p>
           </div>
 
           {/* Billing Cycle */}

@@ -1,7 +1,7 @@
-export function formatCurrency(value: number, decimals = 0) {
+export function formatCurrency(value: number, decimals = 0, currency = "INR") {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
-    currency: "INR",
+    currency,
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   }).format(value);
@@ -43,4 +43,39 @@ export const CATEGORY_BG: Record<string, string> = {
   Education: "bg-emerald-100 text-emerald-700",
   Travel: "bg-yellow-100 text-yellow-700",
   Other: "bg-slate-100 text-slate-700",
+};
+
+export const SUPPORTED_CURRENCIES = ["INR", "AED", "USD", "GBP", "EUR", "SGD"] as const;
+export type SupportedCurrency = (typeof SUPPORTED_CURRENCIES)[number];
+
+export const INCOME_TYPES = ["SALARY", "FREELANCE", "BONUS", "OTHER"] as const;
+export type IncomeTypeConst = (typeof INCOME_TYPES)[number];
+
+export const LOAN_TYPES = ["PERSONAL", "HOME", "CAR"] as const;
+export type LoanTypeConst = (typeof LOAN_TYPES)[number];
+
+export const LOAN_TYPE_LABELS: Record<string, string> = {
+  PERSONAL: "Personal Loan",
+  HOME: "Home Loan",
+  CAR: "Car / Vehicle Loan",
+};
+
+export const LOAN_TYPE_BG: Record<string, string> = {
+  PERSONAL: "bg-blue-100 text-blue-700",
+  HOME: "bg-green-100 text-green-700",
+  CAR: "bg-orange-100 text-orange-700",
+};
+
+export const INCOME_TYPE_LABELS: Record<string, string> = {
+  SALARY: "Salary",
+  FREELANCE: "Freelance",
+  BONUS: "Bonus",
+  OTHER: "Other",
+};
+
+export const INCOME_TYPE_BG: Record<string, string> = {
+  SALARY: "bg-indigo-100 text-indigo-700",
+  FREELANCE: "bg-violet-100 text-violet-700",
+  BONUS: "bg-emerald-100 text-emerald-700",
+  OTHER: "bg-slate-100 text-slate-700",
 };

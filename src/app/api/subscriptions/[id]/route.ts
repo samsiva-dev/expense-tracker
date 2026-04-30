@@ -2,20 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { addWeeks, addMonths, addQuarters, addYears } from "date-fns";
-
-function advanceDueDate(current: Date, billingCycle: string): Date {
-  switch (billingCycle) {
-    case "WEEKLY":
-      return addWeeks(current, 1);
-    case "QUARTERLY":
-      return addQuarters(current, 1);
-    case "YEARLY":
-      return addYears(current, 1);
-    default:
-      return addMonths(current, 1);
-  }
-}
+import { advanceDueDate } from "@/lib/billing";
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
@@ -37,7 +24,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { name, amount, billingCycle, nextDueDate, category, description, isActive, trackInExpenses, markPaid } =
+  const { name, amount, billingCycle, nextDueDate, category, description, isActive, trackInExpenses, markPaid, minimumCharge, actualUsage } =
     body as Record<string, unknown>;
 
   if (!name || typeof name !== "string" || (name as string).trim() === "") {
@@ -54,7 +41,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: "Invalid date" }, { status: 400 });
   }
 
-  // markPaid: advance the due date to next cycle and optionally create an expense
+  const newMinimumCharge = typeof minimumCharge === "number" && minimumCharge > 0 ? minimumCharge : null;
+
   let finalDueDate = parsedDate;
   if (markPaid === true && existing.nextDueDate <= new Date()) {
     finalDueDate = advanceDueDate(existing.nextDueDate, existing.billingCycle);
@@ -67,19 +55,26 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       amount: amount as number,
       billingCycle: cycleValue,
       nextDueDate: finalDueDate,
-      category: category as string ?? existing.category,
+      category: (category as string) ?? existing.category,
       description: typeof description === "string" ? description.trim() : existing.description,
       isActive: typeof isActive === "boolean" ? isActive : existing.isActive,
       trackInExpenses: typeof trackInExpenses === "boolean" ? trackInExpenses : existing.trackInExpenses,
+      minimumCharge: newMinimumCharge,
     },
   });
 
   // Auto-create expense when marking paid if trackInExpenses is enabled
   if (markPaid === true && (typeof trackInExpenses === "boolean" ? trackInExpenses : existing.trackInExpenses)) {
+    const resolvedMinCharge = newMinimumCharge ?? existing.minimumCharge ?? 0;
+    const usageAmount = typeof actualUsage === "number" ? actualUsage : null;
+    const expenseAmount = usageAmount !== null
+      ? Math.max(resolvedMinCharge, usageAmount)
+      : Math.max(resolvedMinCharge, amount as number);
+
     await prisma.expense.create({
       data: {
         title: `${(name as string).trim()} (subscription)`,
-        amount: amount as number,
+        amount: expenseAmount,
         category: (category as string) ?? existing.category,
         date: existing.nextDueDate,
         description: `Auto-logged from subscription payment`,

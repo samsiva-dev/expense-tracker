@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
   }
 
-  const { name, amount, billingCycle, nextDueDate, category, description, isActive, trackInExpenses } =
+  const { name, amount, billingCycle, nextDueDate, category, description, isActive, trackInExpenses, minimumCharge } =
     body as Record<string, unknown>;
 
   if (!name || typeof name !== "string" || name.trim() === "") {
@@ -64,6 +64,7 @@ export async function POST(req: NextRequest) {
       description: typeof description === "string" ? description.trim() : undefined,
       isActive: typeof isActive === "boolean" ? isActive : true,
       trackInExpenses: typeof trackInExpenses === "boolean" ? trackInExpenses : true,
+      minimumCharge: typeof minimumCharge === "number" && minimumCharge > 0 ? minimumCharge : null,
       userId: session.user.id,
     },
   });
