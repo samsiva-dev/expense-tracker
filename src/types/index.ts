@@ -158,6 +158,7 @@ export interface IncomeFormData {
 export interface IncomeSummary {
   totalIncomeInr: number;
   totalRemittance: number;
+  totalMonthlyEmi: number;
   netKept: number;
 }
 
