@@ -21,6 +21,7 @@ const defaultForm: EmiFormData = {
   interestRate: 0,
   tenureMonths: 12,
   startDate: format(new Date(), "yyyy-MM-dd"),
+  paidMonths: 0,
   notes: "",
 };
 
@@ -36,6 +37,7 @@ export default function EmiForm({ initial, onSuccess, onCancel }: Props) {
           interestRate: initial.interestRate,
           tenureMonths: initial.tenureMonths,
           startDate: format(new Date(initial.startDate), "yyyy-MM-dd"),
+          paidMonths: initial.paidMonths,
           notes: initial.notes ?? "",
         }
       : defaultForm
@@ -51,7 +53,7 @@ export default function EmiForm({ initial, onSuccess, onCancel }: Props) {
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) {
     const { name, value } = e.target;
-    if (["principal", "interestRate", "tenureMonths"].includes(name)) {
+    if (["principal", "interestRate", "tenureMonths", "paidMonths"].includes(name)) {
       setForm((prev) => ({ ...prev, [name]: parseFloat(value) || 0 }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
@@ -87,6 +89,7 @@ export default function EmiForm({ initial, onSuccess, onCancel }: Props) {
           interestRate: form.interestRate,
           tenureMonths: form.tenureMonths,
           startDate: form.startDate,
+          paidMonths: form.paidMonths || 0,
           notes: form.notes || undefined,
         }),
       });
@@ -171,11 +174,22 @@ export default function EmiForm({ initial, onSuccess, onCancel }: Props) {
             </div>
           </div>
 
-          {/* Start Date */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">First EMI Date <span className="text-red-400">*</span></label>
-            <input name="startDate" type="date" value={form.startDate} onChange={handleChange}
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          {/* Start Date + Already Paid */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">First EMI Date <span className="text-red-400">*</span></label>
+              <input name="startDate" type="date" value={form.startDate} onChange={handleChange}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Already Paid (months)</label>
+              <input name="paidMonths" type="number" min="0" step="1" value={form.paidMonths || 0} onChange={handleChange}
+                placeholder="0"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              <p className="text-xs text-gray-400 mt-1">
+                {form.tenureMonths - (form.paidMonths || 0)} months remaining
+              </p>
+            </div>
           </div>
 
           {/* EMI Preview */}

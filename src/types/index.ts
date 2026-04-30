@@ -198,6 +198,7 @@ export interface EmiFormData {
   interestRate: number;
   tenureMonths: number;
   startDate: string;
+  paidMonths: number;
   notes?: string;
 }
 

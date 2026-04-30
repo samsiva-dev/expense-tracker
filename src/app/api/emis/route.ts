@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { loanName, lenderName, loanType, principal, interestRate, tenureMonths, startDate, notes } =
+  const { loanName, lenderName, loanType, principal, interestRate, tenureMonths, startDate, paidMonths, notes } =
     body as Record<string, unknown>;
 
   if (!loanName || typeof loanName !== "string" || (loanName as string).trim() === "") return NextResponse.json({ error: "Loan name is required" }, { status: 400 });
@@ -38,6 +38,10 @@ export async function POST(req: NextRequest) {
 
   const emiAmount = calculateEmi(principal as number, interestRate as number, tenureMonths as number);
 
+  const resolvedPaidMonths = typeof paidMonths === "number" && paidMonths >= 0
+    ? Math.min(Math.floor(paidMonths), tenureMonths as number)
+    : 0;
+
   const emi = await prisma.emi.create({
     data: {
       loanName: (loanName as string).trim(),
@@ -48,6 +52,8 @@ export async function POST(req: NextRequest) {
       tenureMonths: tenureMonths as number,
       startDate: new Date(startDate as string),
       emiAmount,
+      paidMonths: resolvedPaidMonths,
+      status: resolvedPaidMonths >= (tenureMonths as number) ? "CLOSED" : "ACTIVE",
       notes: typeof notes === "string" ? notes.trim() || null : null,
       userId: session.user.id,
     },
