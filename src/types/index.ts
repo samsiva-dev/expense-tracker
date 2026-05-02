@@ -73,6 +73,7 @@ export interface Subscription {
   isActive: boolean;
   trackInExpenses: boolean;
   minimumCharge?: number | null;
+  lastPaidDate?: string | null;
   userId: string;
   createdAt: string;
   updatedAt: string;

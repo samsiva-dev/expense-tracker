@@ -109,6 +109,7 @@ model Subscription {
   isActive        Boolean  @default(true)
   trackInExpenses Boolean  @default(true)
   minimumCharge   Float?
+  lastPaidDate    DateTime?
   userId          String
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt       DateTime @default(now())
