@@ -13,6 +13,8 @@ import { format } from "date-fns";
 import { formatCurrency } from "@/lib/constants";
 import Link from "next/link";
 import { Landmark, ChevronDown, ChevronUp } from "lucide-react";
+import SpendingInsights from "@/components/SpendingInsights";
+import type { Insight } from "@/app/api/insights/route";
 
 interface BudgetStatusItem {
   category: string;
@@ -30,9 +32,11 @@ export default function DashboardPage() {
   const [loans, setLoans] = useState<Loan[]>([]);
   const [budgetStatuses, setBudgetStatuses] = useState<BudgetStatusItem[]>([]);
   const [incomeSummary, setIncomeSummary] = useState<IncomeSummary | null>(null);
+  const [insights, setInsights] = useState<Insight[]>([]);
   const [loadingSummary, setLoadingSummary] = useState(true);
   const [loadingExpenses, setLoadingExpenses] = useState(true);
   const [loadingBudgets, setLoadingBudgets] = useState(true);
+  const [loadingInsights, setLoadingInsights] = useState(true);
   const [budgetOpen, setBudgetOpen] = useState(true);
 
   const now = new Date();
@@ -83,13 +87,24 @@ export default function DashboardPage() {
     } catch { /* non-critical */ }
   }, []);
 
+  const fetchInsights = useCallback(async () => {
+    setLoadingInsights(true);
+    try {
+      const res = await fetch("/api/insights");
+      if (res.ok) setInsights(await res.json());
+    } finally {
+      setLoadingInsights(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchSummary();
     fetchExpenses();
     fetchLoans();
     fetchBudgets();
     fetchIncomeSummary();
-  }, [fetchSummary, fetchExpenses, fetchLoans, fetchBudgets, fetchIncomeSummary]);
+    fetchInsights();
+  }, [fetchSummary, fetchExpenses, fetchLoans, fetchBudgets, fetchIncomeSummary, fetchInsights]);
 
   const greeting = () => {
     const hour = new Date().getHours();
@@ -147,6 +162,11 @@ export default function DashboardPage() {
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
           <CategoryChart data={summary?.categoryBreakdown ?? []} loading={loadingSummary} />
           <MonthlyChart data={summary?.monthlyTrend ?? []} loading={loadingSummary} />
+        </div>
+
+        {/* Spending Insights */}
+        <div className="mt-6">
+          <SpendingInsights insights={insights} loading={loadingInsights} />
         </div>
 
         {/* Budget Status */}
