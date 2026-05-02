@@ -251,6 +251,7 @@ function SubscriptionCard({ sub, onEdit, onDelete, onMarkPaid, deletingId, marki
   const isOverdue = isPast(dueDate);
   const daysLeft = differenceInDays(dueDate, new Date());
   const isDueSoon = !isOverdue && daysLeft <= 3;
+  const isPaidForCycle = !isOverdue && !!sub.lastPaidDate;
   const categoryBg = CATEGORY_BG[sub.category] ?? "bg-slate-100 text-slate-700";
 
   let statusBadge: React.ReactNode = null;
@@ -258,6 +259,12 @@ function SubscriptionCard({ sub, onEdit, onDelete, onMarkPaid, deletingId, marki
     statusBadge = (
       <span className="text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-medium flex items-center gap-1">
         <AlertCircle className="w-3 h-3" /> Overdue
+      </span>
+    );
+  } else if (isPaidForCycle) {
+    statusBadge = (
+      <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium flex items-center gap-1">
+        <CheckCircle2 className="w-3 h-3" /> Paid
       </span>
     );
   } else if (isDueSoon) {
@@ -307,7 +314,10 @@ function SubscriptionCard({ sub, onEdit, onDelete, onMarkPaid, deletingId, marki
         <div className="flex items-center gap-2 mt-0.5 flex-wrap text-xs text-gray-500">
           <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${categoryBg}`}>{sub.category}</span>
           <span>· {CYCLE_LABELS[sub.billingCycle] ?? sub.billingCycle}</span>
-          <span>· Due {format(dueDate, "dd MMM yyyy")}</span>
+          <span>· Next {format(dueDate, "dd MMM yyyy")}</span>
+          {isPaidForCycle && sub.lastPaidDate && (
+            <span>· Paid {format(new Date(sub.lastPaidDate), "dd MMM yyyy")}</span>
+          )}
           {sub.description && <span>· {sub.description}</span>}
         </div>
       </div>

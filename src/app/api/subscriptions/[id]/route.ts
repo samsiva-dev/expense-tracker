@@ -44,8 +44,10 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   const newMinimumCharge = typeof minimumCharge === "number" && minimumCharge > 0 ? minimumCharge : null;
 
   let finalDueDate = parsedDate;
-  if (markPaid === true && existing.nextDueDate <= new Date()) {
+  let lastPaidDate: Date | undefined = undefined;
+  if (markPaid === true) {
     finalDueDate = advanceDueDate(existing.nextDueDate, existing.billingCycle);
+    lastPaidDate = existing.nextDueDate;
   }
 
   const updated = await prisma.subscription.update({
@@ -60,6 +62,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       isActive: typeof isActive === "boolean" ? isActive : existing.isActive,
       trackInExpenses: typeof trackInExpenses === "boolean" ? trackInExpenses : existing.trackInExpenses,
       minimumCharge: newMinimumCharge,
+      ...(lastPaidDate !== undefined && { lastPaidDate }),
     },
   });
 
